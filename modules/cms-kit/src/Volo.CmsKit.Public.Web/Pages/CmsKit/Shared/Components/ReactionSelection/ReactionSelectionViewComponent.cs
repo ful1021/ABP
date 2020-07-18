@@ -8,9 +8,11 @@ using Volo.CmsKit.Reactions;
 
 namespace Volo.CmsKit.Web.Pages.CmsKit.Shared.Components.ReactionSelection
 {
+    [ViewComponent(Name = "CmsReactionSelection")]
     [Widget(
         ScriptTypes = new[] {typeof(ReactionSelectionScriptBundleContributor)},
-        StyleTypes = new[] {typeof(ReactionSelectionStyleBundleContributor)}
+        StyleTypes = new[] {typeof(ReactionSelectionStyleBundleContributor)},
+        RefreshUrl = "/CmsKitPublicWidgets/ReactionSelection"
     )]
     public class ReactionSelectionViewComponent : AbpViewComponent
     {
