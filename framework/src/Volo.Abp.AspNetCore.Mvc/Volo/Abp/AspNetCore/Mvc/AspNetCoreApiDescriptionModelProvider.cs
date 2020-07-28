@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -13,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Volo.Abp.Application.Services;
-using Volo.Abp.AspNetCore.Mvc.ApiExploring;
 using Volo.Abp.AspNetCore.Mvc.Conventions;
 using Volo.Abp.AspNetCore.Mvc.Utils;
 using Volo.Abp.DependencyInjection;
@@ -67,15 +65,27 @@ namespace Volo.Abp.AspNetCore.Mvc
 
         private void AddApiDescriptionToModel(
             ApiDescription apiDescription,
-            ApplicationApiDescriptionModel applicationModel, 
+            ApplicationApiDescriptionModel applicationModel,
             ApplicationApiDescriptionModelRequestDto input)
         {
-            var controllerType = apiDescription.ActionDescriptor.AsControllerActionDescriptor().ControllerTypeInfo.AsType();
+            var controllerType = apiDescription
+                .ActionDescriptor
+                .AsControllerActionDescriptor()
+                .ControllerTypeInfo;
+
             var setting = FindSetting(controllerType);
 
-            var moduleModel = applicationModel.GetOrAddModule(GetRootPath(controllerType, setting), GetRemoteServiceName(controllerType, setting));
+            var moduleModel = applicationModel.GetOrAddModule(
+                GetRootPath(controllerType, setting),
+                GetRemoteServiceName(controllerType, setting)
+            );
 
-            var controllerModel = moduleModel.GetOrAddController(controllerType.FullName, CalculateControllerName(controllerType, setting), controllerType, _modelOptions.IgnoredInterfaces);
+            var controllerModel = moduleModel.GetOrAddController(
+                controllerType.FullName,
+                CalculateControllerName(controllerType, setting),
+                controllerType,
+                _modelOptions.IgnoredInterfaces
+            );
 
             var method = apiDescription.ActionDescriptor.GetMethodInfo();
 
@@ -88,13 +98,16 @@ namespace Volo.Abp.AspNetCore.Mvc
 
             Logger.LogDebug($"ActionApiDescriptionModel.Create: {controllerModel.ControllerName}.{uniqueMethodName}");
 
-            var actionModel = controllerModel.AddAction(uniqueMethodName, ActionApiDescriptionModel.Create(
+            var actionModel = controllerModel.AddAction(
                 uniqueMethodName,
-                method,
-                apiDescription.RelativePath,
-                apiDescription.HttpMethod,
-                GetSupportedVersions(controllerType, method, setting)
-            ));
+                ActionApiDescriptionModel.Create(
+                    uniqueMethodName,
+                    method,
+                    apiDescription.RelativePath,
+                    apiDescription.HttpMethod,
+                    GetSupportedVersions(controllerType, method, setting)
+                )
+            );
 
             if (input.IncludeTypes)
             {
@@ -182,7 +195,7 @@ namespace Volo.Abp.AspNetCore.Mvc
             type = AsyncHelper.UnwrapTask(type);
 
             if (type == typeof(object) ||
-                type == typeof(void) || 
+                type == typeof(void) ||
                 type == typeof(Enum) ||
                 type == typeof(ValueType) ||
                 TypeHelper.IsPrimitiveExtended(type))
@@ -190,16 +203,16 @@ namespace Volo.Abp.AspNetCore.Mvc
                 return;
             }
 
-            if (TypeHelper.IsEnumerable(type, out var itemType))
-            {
-                AddCustomTypesToModel(applicationModel, itemType);
-                return;
-            }
-
             if (TypeHelper.IsDictionary(type, out var keyType, out var valueType))
             {
                 AddCustomTypesToModel(applicationModel, keyType);
                 AddCustomTypesToModel(applicationModel, valueType);
+                return;
+            }
+
+            if (TypeHelper.IsEnumerable(type, out var itemType))
+            {
+                AddCustomTypesToModel(applicationModel, itemType);
                 return;
             }
 
@@ -212,7 +225,7 @@ namespace Volo.Abp.AspNetCore.Mvc
             {
                 return;
             }
-            
+
             var typeModel = TypeApiDescriptionModel.Create(type);
             applicationModel.Types[typeName] = typeModel;
 
