@@ -17,7 +17,7 @@ namespace Volo.CmsKit.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("_Abp_DatabaseProvider", EfCoreDatabaseProvider.SqlServer)
-                .HasAnnotation("ProductVersion", "3.1.5")
+                .HasAnnotation("ProductVersion", "3.1.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -939,6 +939,10 @@ namespace Volo.CmsKit.Migrations
                     b.Property<Guid?>("RepliedCommentId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnName("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("nvarchar(512)")
@@ -981,6 +985,10 @@ namespace Volo.CmsKit.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(32)")
                         .HasMaxLength(32);
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnName("TenantId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 

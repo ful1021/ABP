@@ -3,9 +3,10 @@
 @using Volo.Abp.Users
 @using Volo.CmsKit.Comments
 @using Volo.CmsKit.Localization
+@using Volo.CmsKit.Public.Comments
 @inject ICurrentUser CurrentUser
 @inject IHtmlLocalizer<CmsKitResource> L
-@model Volo.CmsKit.Web.Pages.CmsKit.Shared.Components.Commenting.CommentingViewComponent.CommentingViewModel
+@model Volo.CmsKit.Public.Web.Pages.CmsKit.Shared.Components.Commenting.CommentingViewComponent.CommentingViewModel
 
 @{
     Func<dynamic, IHtmlContent> GetCommentTitle(CmsUserDto author, DateTime creationTime) =>
@@ -18,7 +19,8 @@
 }
 @{
     Func<dynamic, IHtmlContent> GetCommentArea(Guid? repliedCommentId, bool cancelButton = false) =>
-        @<div class="cms-comment-form-area" data-reply-id="@(repliedCommentId?.ToString() ?? "")"
+        @<div class="cms-comment-form-area @(repliedCommentId.HasValue ? "pl-5":"")"
+              data-reply-id="@(repliedCommentId?.ToString() ?? "")"
               style="@(string.IsNullOrEmpty(repliedCommentId?.ToString() ?? "") ? "" : "display:none")">
             <form class="cms-comment-form">
                 <input hidden value="@(repliedCommentId?.ToString() ?? "")" name="repliedCommentId"/>
@@ -129,7 +131,7 @@
                 </div>
             </div>
         }
-        <div class="p-3 pl-5">
+        <div class="">
             @if (CurrentUser.IsAuthenticated)
             {
                 @GetCommentArea(null).Invoke(null)
