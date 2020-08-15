@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -43,6 +40,7 @@ namespace Volo.CmsKit.Reactions
 
             reactions.Items.
                 First(r=>r.Reaction.Name == StandardReactions.Rocket).IsSelectedByCurrentUser.ShouldBeTrue();
+
             reactions.Items.
                 First(r=>r.Reaction.Name == StandardReactions.Rocket).Count.ShouldBe(1);
 
@@ -68,7 +66,7 @@ namespace Volo.CmsKit.Reactions
 
             UsingDbContext(context =>
             {
-                var reaction = context.UserReactions.FirstOrDefault(x =>
+                var reaction = context.Set<UserReaction>().FirstOrDefault(x =>
                     x.CreatorId == _cmsKitTestData.User1Id &&
                     x.ReactionName == StandardReactions.Hooray &&
                     x.EntityId == _cmsKitTestData.EntityId2 &&
@@ -92,7 +90,7 @@ namespace Volo.CmsKit.Reactions
 
             UsingDbContext(context =>
             {
-                var reaction = context.UserReactions.FirstOrDefault(x =>
+                var reaction = context.Set<UserReaction>().FirstOrDefault(x =>
                     x.CreatorId == _cmsKitTestData.User1Id &&
                     x.ReactionName == StandardReactions.Confused &&
                     x.EntityId == _cmsKitTestData.EntityId1 &&

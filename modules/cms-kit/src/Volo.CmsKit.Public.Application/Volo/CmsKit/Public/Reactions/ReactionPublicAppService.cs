@@ -9,7 +9,7 @@ using Volo.CmsKit.Reactions;
 namespace Volo.CmsKit.Public.Reactions
 {
     //TODO: Authorization
-    public class ReactionPublicAppService : CmsKitPublicAppService, IReactionPublicAppService
+    public class ReactionPublicAppService : CmsKitPublicAppServiceBase, IReactionPublicAppService
     {
         protected IReactionDefinitionStore ReactionDefinitionStore { get; }
 
@@ -31,13 +31,14 @@ namespace Volo.CmsKit.Public.Reactions
         {
             var summaries = await ReactionManager.GetSummariesAsync(entityType, entityId);
 
-            var userReactions = CurrentUser.IsAuthenticated ?
-                (await UserReactionRepository
-                .GetListForUserAsync(
-                    CurrentUser.GetId(),
-                    entityType,
-                    entityId
-                )).ToDictionary(x => x.ReactionName, x => x) : null;
+            var userReactionsOrNull = CurrentUser.IsAuthenticated
+                ? (await UserReactionRepository
+                    .GetListForUserAsync(
+                        CurrentUser.GetId(),
+                        entityType,
+                        entityId
+                    )).ToDictionary(x => x.ReactionName, x => x)
+                : null;
 
             var reactionWithSelectionDtos = new List<ReactionWithSelectionDto>();
 
@@ -48,7 +49,7 @@ namespace Volo.CmsKit.Public.Reactions
                     {
                         Reaction = ConvertToReactionDto(summary.Reaction),
                         Count = summary.Count,
-                        IsSelectedByCurrentUser = userReactions?.ContainsKey(summary.Reaction.Name) ?? false
+                        IsSelectedByCurrentUser = userReactionsOrNull?.ContainsKey(summary.Reaction.Name) ?? false
                     }
                 );
             }
