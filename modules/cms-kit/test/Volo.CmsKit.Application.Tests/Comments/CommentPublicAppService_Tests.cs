@@ -30,7 +30,7 @@ namespace Volo.CmsKit.Comments
         [Fact]
         public async Task GetAllForEntityAsync()
         {
-            var list = await _commentAppService.GetAllForEntityAsync(_cmsKitTestData.EntityType1, _cmsKitTestData.EntityId1);
+            var list = await _commentAppService.GetListAsync(_cmsKitTestData.EntityType1, _cmsKitTestData.EntityId1);
 
             list.Items.Count.ShouldBe(2);
             list.Items.First().Replies.Count.ShouldBe(2);
@@ -41,13 +41,15 @@ namespace Volo.CmsKit.Comments
         {
             _currentUser.Id.Returns(_cmsKitTestData.User2Id);
 
-            var newComment = await _commentAppService.CreateAsync(new CreateCommentInput
-            {
-                EntityId = _cmsKitTestData.EntityId1,
-                EntityType = _cmsKitTestData.EntityType1,
-                RepliedCommentId = null,
-                Text = "newComment"
-            });
+            var newComment = await _commentAppService.CreateAsync(
+                _cmsKitTestData.EntityType1,
+                _cmsKitTestData.EntityId1,
+                new CreateCommentInput
+                {
+                    RepliedCommentId = null,
+                    Text = "newComment"
+                }
+            );
 
             UsingDbContext(context =>
             {
