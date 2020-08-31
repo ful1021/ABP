@@ -20,27 +20,33 @@ import {
   createImportRefToEnumMapper,
   EnumGeneratorParams,
   getEnumNamesFromImports,
+  getRootNamespace,
   interpolate,
   ModelGeneratorParams,
+  removeDefaultPlaceholders,
   resolveProject,
   serializeParameters,
 } from '../../utils';
 import * as cases from '../../utils/text';
 import { Schema as GenerateProxySchema } from './schema';
 
-export default function(params: GenerateProxySchema) {
-  const solution = params.solution;
+export default function(schema: GenerateProxySchema) {
+  const params = removeDefaultPlaceholders(schema);
   const moduleName = strings.camelize(params.module || 'app');
 
   return chain([
     async (tree: Tree, _context: SchematicContext) => {
+      const source = await resolveProject(tree, params.source!);
       const target = await resolveProject(tree, params.target!);
+      const solution = getRootNamespace(tree, source, moduleName);
       const targetPath = buildDefaultPath(target.definition);
-      const readApiDefinition = createApiDefinitionReader(
-        `${targetPath}/shared/api-definition.json`,
-      );
+      const definitionPath = `${targetPath}/shared/api-definition.json`;
+      const readApiDefinition = createApiDefinitionReader(definitionPath);
       const data = readApiDefinition(tree);
       const types = data.types;
+      const modules = data.modules;
+      if (!types || !modules) throw new SchematicsException(Exception.InvalidApiDefinition);
+
       const definition = data.modules[moduleName];
       if (!definition)
         throw new SchematicsException(interpolate(Exception.InvalidModule, moduleName));
